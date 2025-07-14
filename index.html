@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal UAS | Semester 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    boxShadow: {
+                        card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        glow: '0 0 15px rgba(56, 189, 248, 0.1)',
+                    },
+                    animation: {
+                        'spin-slow': 'spin 2s linear infinite',
+                        'toggle-dark': 'toggleDark 0.4s ease-in-out',
+                    },
+                    keyframes: {
+                        toggleDark: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(0.8)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .highlight-row {
+            background: linear-gradient(90deg, rgba(224, 242, 254, 0.5) 0%, rgba(224, 242, 254, 0.2) 100%);
+        }
+        .dark .highlight-row {
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.3) 0%, rgba(14, 165, 233, 0.15) 100%);
+        }
+        .lab-row {
+            background: linear-gradient(90deg, rgba(52, 211, 153, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%);
+        }
+        .dark .lab-row {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans antialiased dark:bg-gray-900 transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Dark Mode Toggle -->
+        <div class="absolute top-4 right-4">
+            <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2.5 transition-all duration-200">
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Header Section -->
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold text-primary-800 dark:text-primary-400 mb-2">Jadwal Ujian Akhir Semester</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+                <span id="current-date"></span> | <span id="current-time"></span>
+            </p>
+            <div class="w-24 h-1 bg-gradient-to-r from-primary-400 to-accent-500 mx-auto rounded-full"></div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-card p-6 border-l-4 border-primary-500 hover:shadow-glow transition-all">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-300 mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Classes</p>
+                        <p class="text-2xl font-semibold text-gray-800 dark:text-white">6</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-card p-6 border-l-4 border-accent-500 hover:shadow-glow transition-all">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-lg bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-300 mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Next Class</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white truncate">Big Data Analytics</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Thu, 17 Jul 2025</p>
+                        <p id="next-class-countdown" class="text-xs font-medium text-accent-600 dark:text-accent-400 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-card p-6 border-l-4 border-primary-400 hover:shadow-glow transition-all">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-500 dark:text-primary-300 mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9h14m0 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4m14 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m14 0H5m0 0h14" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Lab Sessions</p>
+                        <p class="text-2xl font-semibold text-gray-800 dark:text-white">1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-card overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Jadwal Ujian</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-primary-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">No.</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">Hari</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">Tanggal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">Mata Kuliah</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">jam</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">Kelas/th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-600 dark:text-primary-300 uppercase tracking-wider">Sisa Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
+                        <!-- Today's class (highlighted) -->
+                        <tr class="highlight-row hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 font-medium text-sm">1</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="font-medium text-gray-900 dark:text-white">Kamis</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white font-medium">17 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Big Data Analytic and Visualization</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400"> Shary Armonitha Lusinia, S.Kom, M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">10:30-12:30</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">H17, H18, F11-F13</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-1"></td>
+                        </tr>
+
+                        <!-- Today's class (highlighted) -->
+                        <tr class="highlight-row hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 font-medium text-sm">2</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="font-medium text-gray-900 dark:text-white">Kamis</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white font-medium">17 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Data Warehouse</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400"> Rahmatia Wulan Dari, S.Kom., M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">13:30-15:30</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">H10-H13</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-2"></td>
+                        </tr>
+
+                        <!-- Regular class -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium text-sm">3</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-gray-900 dark:text-white">Jum'at</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white">18 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Keahlian Berkomunikasi</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Dr. Abulwafa Muhammad, S.Kom, M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">13:30-15:30</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">H5-H9</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-3"></td>
+                        </tr>
+
+                        <!-- Lab class -->
+                        <tr class="lab-row hover:bg-accent-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-800 dark:text-accent-200 font-medium text-sm">4</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-gray-900 dark:text-white">Senin</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white">21 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 dark:text-accent-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9h14m0 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4m14 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m14 0H5m0 0h14" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Information Retrieval</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Dr. Syafri Arlis, S.Kom, M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">13:30-15:30</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <span class="inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-accent-600 dark:text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9h14m0 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4m14 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m14 0H5m0 0h14" />
+                                    </svg>
+                                    LAB-9, LAB-10, LAB-11
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-4"></td>
+                        </tr>
+
+                        <!-- Regular class -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium text-sm">5</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-gray-900 dark:text-white">Selasa</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white">22 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Sistem Infrastruktur</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Masriadi, S.Kom, M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">13:30-15:30</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">D14, D15, H1, H2</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-5"></td>
+                        </tr>
+
+                        <!-- Regular class -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium text-sm">6</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-gray-900 dark:text-white">Jum'at</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-gray-900 dark:text-white">25 Jul 2025</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Keamanan Komputer</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Nugraha Rahmansyah, S.Kom, M.Kom</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">10:15-12:15</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">D8-D12, H1, H2</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" id="countdown-6"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Showing <span class="font-medium">1</span> to <span class="font-medium">6</span> of <span class="font-medium">6</span> classes</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 rounded-md bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-300 text-sm font-medium hover:bg-primary-100 dark:hover:bg-gray-600 transition-colors">Export</button>
+                    <button class="px-3 py-1 rounded-md bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">Print</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Widget -->
+        <div class="mt-10 bg-white dark:bg-gray-800 rounded-xl shadow-card overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">July 2025</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-7 gap-2 mb-4">
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Sun</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Mon</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Tue</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Wed</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Thu</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Fri</div>
+                    <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">Sat</div>
+                </div>
+                <div class="grid grid-cols-7 gap-2" id="calendar-days">
+                    <!-- Calendar days will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>© 2025 Jadwal Ujian Akhir Semester. Yohanda Ryval</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dark mode toggle functionality
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+    
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleLightIcon.classList.remove('hidden');
+        }
+    
+        themeToggleBtn.addEventListener('click', function() {
+            // Animasi tombol
+            themeToggleBtn.classList.add('animate-toggle-dark');
+            setTimeout(() => {
+                themeToggleBtn.classList.remove('animate-toggle-dark');
+            }, 400);
+    
+            // Toggle icon
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+    
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+            
+            // Regenerate calendar when theme changes
+            generateCalendar();
+        });
+    
+        // Update tanggal dan waktu dalam Bahasa Indonesia
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const dayName = days[now.getDay()];
+            const monthName = months[now.getMonth()];
+            const dateStr = `${dayName}, ${now.getDate()} ${monthName} ${now.getFullYear()}`;
+            
+            document.getElementById('current-date').textContent = dateStr;
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('id-ID');
+        }
+    
+        // Fungsi generate kalender dengan warna yang sesuai untuk light/dark mode
+        function generateCalendar() {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            const year = 2025;
+            const month = 6; // Juli (0-11)
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Hari-hari dengan kelas
+            const classDays = [17, 18, 21, 22, 25];
+            
+            // Tambahkan hari kosong untuk minggu pertama
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('h-10');
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Tambahkan hari-hari dalam bulan
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('h-10', 'flex', 'items-center', 'justify-center', 'rounded-full', 'text-sm');
+                
+                // Default text color - dark in light mode, white in dark mode
+                dayElement.classList.add('text-gray-800', 'dark:text-white');
+                
+                // Highlight hari ini
+                const today = new Date();
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayElement.classList.remove('text-gray-800', 'dark:text-white');
+                    dayElement.classList.add('bg-primary-500', 'text-white');
+                }
+                
+                // Highlight hari dengan kelas
+                if (classDays.includes(day)) {
+                    dayElement.classList.add('font-medium');
+                    if (day === 21) { // Lab day
+                        dayElement.classList.remove('text-gray-800', 'dark:text-white');
+                        dayElement.classList.add('text-accent-600', 'dark:text-accent-400');
+                    } else {
+                        dayElement.classList.remove('text-gray-800', 'dark:text-white');
+                        dayElement.classList.add('text-primary-600', 'dark:text-primary-400');
+                    }
+                }
+                
+                dayElement.textContent = day;
+                calendarDays.appendChild(dayElement);
+            }
+        }
+    
+        // Header hari dalam Bahasa Indonesia
+        function setupCalendarHeaders() {
+            const dayHeaders = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const headerContainer = document.querySelector('.grid.grid-cols-7.gap-2.mb-4');
+            headerContainer.innerHTML = '';
+            
+            dayHeaders.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('text-center', 'text-xs', 'font-medium', 'text-gray-500', 'dark:text-gray-400');
+                dayElement.textContent = day;
+                headerContainer.appendChild(dayElement);
+            });
+        }
+    
+        // Fungsi countdown dalam Bahasa Indonesia
+        function updateCountdowns() {
+            const now = new Date();
+            const classDates = [
+                new Date(2025, 6, 17, 10, 30),  // Big Data Analytic - 17 Jul 2025 10:30
+                new Date(2025, 6, 17, 13, 30),  // Data Warehouse - 17 Jul 2025 13:30
+                new Date(2025, 6, 18, 13, 30),  // Keahlian Berkomunikasi - 18 Jul 2025 13:30
+                new Date(2025, 6, 21, 13, 30),  // Lab Information Retrieval - 21 Jul 2025 13:30
+                new Date(2025, 6, 22, 13, 30),  // Sistem Infrastruktur - 22 Jul 2025 13:30
+                new Date(2025, 6, 25, 10, 15)   // Keamanan Komputer - 25 Jul 2025 10:15
+            ];
+    
+            // Update countdown untuk setiap kelas
+            classDates.forEach((classDate, index) => {
+                const diff = classDate - now;
+                const countdownElement = document.getElementById(`countdown-${index + 1}`);
+                
+                if (diff <= 0) {
+                    countdownElement.textContent = "Kelas telah selesai";
+                    countdownElement.classList.add('text-gray-500', 'dark:text-gray-400');
+                } else {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    if (days > 0) {
+                        countdownElement.textContent = `${days} hari ${hours} jam lagi`;
+                    } else if (hours > 0) {
+                        countdownElement.textContent = `${hours} jam ${minutes} menit lagi`;
+                    } else {
+                        countdownElement.textContent = `${minutes} menit lagi`;
+                    }
+                    
+                    // Warna berbeda untuk kelas yang akan datang dalam 24 jam
+                    if (diff < 24 * 60 * 60 * 1000) {
+                        countdownElement.classList.add('text-accent-600', 'dark:text-accent-400');
+                    }
+                }
+            });
+    
+            // Update countdown untuk "Next Class" di stat card
+            const nextClassIndex = classDates.findIndex(date => date > now);
+            if (nextClassIndex !== -1) {
+                const nextClassDate = classDates[nextClassIndex];
+                const diff = nextClassDate - now;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                let countdownText;
+                if (days > 0) {
+                    countdownText = `${days} hari ${hours} jam lagi`;
+                } else {
+                    countdownText = `${hours} jam lagi`;
+                }
+                
+                document.getElementById('next-class-countdown').textContent = countdownText;
+            }
+        }
+    
+        // Panggil semua fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            updateCountdowns();
+            setInterval(updateCountdowns, 60000);
+            
+            setupCalendarHeaders();
+            generateCalendar();
+            
+            // Terjemahan stat cards
+            document.querySelectorAll('.text-sm.font-medium.text-gray-500')[0].textContent = 'Total Kelas';
+            document.querySelectorAll('.text-sm.font-medium.text-gray-500')[1].textContent = 'Kelas Berikutnya';
+            document.querySelectorAll('.text-sm.font-medium.text-gray-500')[2].textContent = 'Sesi Lab';
+            
+            // Terjemahan footer
+            document.querySelector('footer p').textContent = '© 2025 Jadwal Ujian Akhir Semester. Yohanda Ryval';
+        });
+    </script>
+</body>
+</html>
